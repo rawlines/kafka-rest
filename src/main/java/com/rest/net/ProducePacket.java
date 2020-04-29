@@ -1,10 +1,15 @@
 package com.rest.net;
 
-import com.rest.net.Packet.Command;
+public class ProducePacket implements Packet {
 
-public class ProducePacket extends Packet {
-	protected ProducePacket() {
-		super(Command.PRODUCE);
+	@Override
+	public byte[] toBytes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
+	@Override
+	public PacketType getPacketType() {
+		return PacketType.PROD;
+	}
 }

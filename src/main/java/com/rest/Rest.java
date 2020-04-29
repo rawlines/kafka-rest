@@ -5,7 +5,6 @@ import java.net.Socket;
 import javax.net.ssl.SSLServerSocket;
 
 import com.rest.utils.SSLUtils;
-import com.rest.utils.SocketCommunicationRunnable;
 
 public class Rest {
 	private boolean stop = false;
@@ -26,9 +25,9 @@ public class Rest {
 	}
 	
 	private void listen() {
+		System.out.println("Listening for new connections...");
 		while (!stop) {
 			try {
-				System.out.println("Listening for new connection...");
 				Socket socket = ssocket.accept();
 				
 				new Thread(new SocketCommunicationRunnable(socket), "main-" + socket.getInetAddress()).start(); //Give the connection his own thread

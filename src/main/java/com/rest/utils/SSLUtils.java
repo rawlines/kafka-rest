@@ -30,8 +30,10 @@ public abstract class SSLUtils {
 	private static KeyManager[] getKeyManagers() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException {
 		KeyManagerFactory knf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		KeyStore keyStore = KeyStore.getInstance("JKS");
-		keyStore.load(new FileInputStream(new File(ResourcesLoader.load(KEYSTORE_RESOURCE_LOCATION))), "123456".toCharArray());
+		
+		keyStore.load(new FileInputStream(ResourcesLoader.load(KEYSTORE_RESOURCE_LOCATION)), KEYSTORE_PASSWORD.toCharArray());
 		knf.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
+		
 		return knf.getKeyManagers();
 	}
 	
