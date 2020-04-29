@@ -22,21 +22,17 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public abstract class SSLUtils {
-	private static final String KEYSTORE_RESOURCE_LOCATION = "keystore/admin.jks";
-	private static final String KEYSTORE_PASSWORD = "123456";
+	static final String TRUSTSTORE_RESOURE_LOCATION = "keystore/kafkarootCA.jks";
+	static final String TRUSTSTORE_PASSWORD = "123456";
+	static final String KEYSTORE_RESOURCE_LOCATION = "keystore/admin.jks";
+	static final String KEYSTORE_PASSWORD = "123456";
 	
-	private static class KeyStoreLoader {
-		private KeyManagerFactory knf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		
-		public KeyStoreLoader(String keystorePath, String password) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
-			KeyStore keyStore = KeyStore.getInstance("JKS");
-			keyStore.load(new FileInputStream(new File(getClass().getClassLoader().getResource(keystorePath).getPath())), "123456".toCharArray());
-			knf.init(keyStore, password.toCharArray());
-		}
-		
-		public KeyManager[] getKeyManagers() {
-			return knf.getKeyManagers();
-		}
+	private static KeyManager[] getKeyManagers() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException {
+		KeyManagerFactory knf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		KeyStore keyStore = KeyStore.getInstance("JKS");
+		keyStore.load(new FileInputStream(new File(ResourcesLoader.load(KEYSTORE_RESOURCE_LOCATION))), "123456".toCharArray());
+		knf.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
+		return knf.getKeyManagers();
 	}
 	
 	private static class AcceptAllTrustManager implements X509TrustManager {
@@ -53,10 +49,8 @@ public abstract class SSLUtils {
 	}
 	
 	public static SSLServerSocket getServerSocket(int port) throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException, KeyStoreException, CertificateException, FileNotFoundException, IOException {
-		KeyStoreLoader ksl = new KeyStoreLoader(KEYSTORE_RESOURCE_LOCATION, KEYSTORE_PASSWORD);
-		
 		SSLContext sslctx = SSLContext.getInstance("TLSv1.2");
-		sslctx.init(ksl.getKeyManagers(), AcceptAllTrustManager.getTrustManagers(), new SecureRandom());
+		sslctx.init(getKeyManagers(), AcceptAllTrustManager.getTrustManagers(), new SecureRandom());
 		
 		SSLServerSocketFactory factory = sslctx.getServerSocketFactory();
 		return (SSLServerSocket) factory.createServerSocket(port);

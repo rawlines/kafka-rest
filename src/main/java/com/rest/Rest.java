@@ -15,7 +15,7 @@ public class Rest {
 		try {
 			ssocket = SSLUtils.getServerSocket(8081);
 			
-			System.out.println("Initialized server on: " + ssocket.getInetAddress().toString() + ":" + port);
+			System.out.println("Initialized server on: " + ssocket.getInetAddress() + ":" + port);
 		} catch (Exception e) {
 			System.out.println("Error initializing main socket");
 			e.printStackTrace();
@@ -31,7 +31,7 @@ public class Rest {
 				System.out.println("Listening for new connection...");
 				Socket socket = ssocket.accept();
 				
-				new Thread(new SocketCommunicationRunnable(socket)).start(); //Give the connection his own thread
+				new Thread(new SocketCommunicationRunnable(socket), "main-" + socket.getInetAddress()).start(); //Give the connection his own thread
 			} catch (Exception e) {
 				System.out.println("Error while listening for connection");
 				e.printStackTrace();

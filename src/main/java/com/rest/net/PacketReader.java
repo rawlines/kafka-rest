@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import com.rest.net.Packet.Command;
-
 public class PacketReader extends DataInputStream {
 	public static class ArgumentParseException extends Exception {
 		private static final long serialVersionUID = 1L;
