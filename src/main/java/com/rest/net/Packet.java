@@ -61,7 +61,7 @@ public interface Packet {
 			
 		}
 		
-		return null;
+		throw new CommandParseException("Invalid type");
 	}
 	
 	static Packet fromBytes(byte[] bytes) throws ArgumentParseException, CommandParseException {
