@@ -9,7 +9,7 @@ public class PacketWriter extends DataOutputStream {
 		super(os);
 	}
 	
-	public void sendPacket(Packet packet) throws IOException {
+	public synchronized void sendPacket(Packet packet) throws IOException {
 		write(packet.toBytes());
 		flush();
 	}

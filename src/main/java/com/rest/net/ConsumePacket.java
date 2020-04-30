@@ -1,8 +1,16 @@
 package com.rest.net;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
+/**
+ * 
+ * Class representation of a Consume packet
+ * 
+ * bytes representation: 0000CONScontent
+ * 
+ * @author gonza
+ *
+ */
 public class ConsumePacket implements Packet {
 	private final byte[] command = new byte[] {'C', 'O', 'N', 'S'};
 	private byte[] content;

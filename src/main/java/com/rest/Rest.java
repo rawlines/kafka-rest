@@ -30,7 +30,8 @@ public class Rest {
 			try {
 				Socket socket = ssocket.accept();
 				
-				new Thread(new SocketCommunicationRunnable(socket), "main-" + socket.getInetAddress()).start(); //Give the connection his own thread
+				//Give each the connection its own thread
+				new Thread(new SocketCommunicationRunnable(socket), "main-" + socket.getInetAddress()).start();
 			} catch (Exception e) {
 				System.out.println("Error while listening for connection");
 				e.printStackTrace();

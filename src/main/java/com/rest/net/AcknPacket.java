@@ -2,6 +2,15 @@ package com.rest.net;
 
 import java.nio.ByteBuffer;
 
+/**
+ * 
+ * Representation of an Acknowledge packet
+ * 
+ * bytes representation: 0000ACKNcomm (where comm is the command to ACK)
+ * 
+ * @author gonza
+ *
+ */
 public class AcknPacket implements Packet {
 	private PacketType command;
 	

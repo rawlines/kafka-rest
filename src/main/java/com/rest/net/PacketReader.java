@@ -3,7 +3,6 @@ package com.rest.net;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 import com.rest.exceptions.ArgumentParseException;
 import com.rest.exceptions.CommandParseException;
@@ -31,10 +30,12 @@ public class PacketReader extends DataInputStream {
 	}
 	
 	private byte[] readNBytes(int num) throws IOException {
-		ByteBuffer buff = ByteBuffer.allocate(num);
-		while (buff.hasRemaining()) {
-			buff.put(readByte());
+		byte[] buff = new byte[num];
+		
+		for (int i = 0; i < buff.length; i++) {
+			buff[i] = readByte();
 		}
-		return buff.array();
+		
+		return buff;
 	}
 }

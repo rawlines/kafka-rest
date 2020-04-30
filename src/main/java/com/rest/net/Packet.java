@@ -1,6 +1,6 @@
 package com.rest.net;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import com.rest.exceptions.ArgumentParseException;
@@ -11,7 +11,7 @@ public interface Packet {
 		AUTH, PROD, CONS, ACKN
 	}
 	
-	String ARGUMENT_SEPARATOR = "@@"; 
+	String ARGUMENT_SEPARATOR = new String(new byte[] {'@', '@'}, StandardCharsets.ISO_8859_1); 
 	
 	byte[] AUTH_BYTES = new byte[] {'A', 'U', 'T', 'H'};
 	byte[] PROD_BYTES = new byte[] {'P', 'R', 'O', 'D'};
@@ -64,15 +64,15 @@ public interface Packet {
 		return null;
 	}
 	
-	public static Packet fromBytes(byte[] bytes) throws ArgumentParseException, CommandParseException {
+	static Packet fromBytes(byte[] bytes) throws ArgumentParseException, CommandParseException {
 		byte[] com = Arrays.copyOfRange(bytes, 0, 4);
 		byte[] bargs = Arrays.copyOfRange(bytes, 4, bytes.length);
 			
-		String command = new String(com, Charset.forName("UTF-8"));
+		String command = new String(com, StandardCharsets.ISO_8859_1);
 		
 		if (command.equals("AUTH")) {
 			
-			String args = new String(bargs, Charset.forName("UTF-8"));
+			String args = new String(bargs, StandardCharsets.ISO_8859_1);
 			String[] tokens = args.split(ARGUMENT_SEPARATOR);
 			
 			if (tokens.length != 2)
@@ -82,11 +82,17 @@ public interface Packet {
 			
 		} else if (command.equals("CONS")) {
 			
-			return parseCons(bargs);
+			return new ConsumePacket(bargs);
 			
 		} else if (command.equals("PROD")) {
 			
-			return parseProd(bargs);
+			String args = new String(bargs, StandardCharsets.ISO_8859_1);
+			String[] tokens = args.split(ARGUMENT_SEPARATOR);
+			
+			if (tokens.length != 2)
+				throw new ArgumentParseException("Invalid arguments");
+			
+			return new ProducePacket(tokens[0], tokens[1].getBytes(StandardCharsets.ISO_8859_1));
 			
 		} else if (command.equals("ACKN")) {
 			
@@ -95,13 +101,5 @@ public interface Packet {
 		}
 		
 		throw new CommandParseException("Cannot determine command type");
-	}
-	
-	static ConsumePacket parseCons(byte[] bargs) {
-		return new ConsumePacket(bargs);
-	}
-	
-	static ProducePacket parseProd(byte[] bargs) {
-		return null;
 	}
 }

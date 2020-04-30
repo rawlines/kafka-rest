@@ -1,7 +1,6 @@
 package com.rest.kafka;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Queue;
@@ -11,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.InterruptException;
 import org.apache.kafka.common.errors.SaslAuthenticationException;
 
 import com.rest.exceptions.NoAcnowledgeException;
@@ -26,10 +26,10 @@ public class ConsumerThread implements Runnable {
 	private Consumer<String, byte[]> cons;
 	private Queue<Packet> queue;
 	
-	public ConsumerThread(String user, String pass, Queue<Packet> queue, OutputStream os) throws Exception {
+	public ConsumerThread(String user, String pass, Queue<Packet> queue, PacketWriter pWriter) throws Exception {
 		this.cons = KafkaUtil.getConsumer(user, pass);
 		this.queue = queue;
-		this.pWriter = new PacketWriter(os);
+		this.pWriter = pWriter;
 	}
 	
 	private void waitForAcknowledge() throws NoAcnowledgeException, InterruptedException {
@@ -65,26 +65,27 @@ public class ConsumerThread implements Runnable {
 						waitForAcknowledge();
 					
 						lastOffset = record.offset();
-		 				System.out.println("Succesfully consumed");
 					}
 					cons.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
 				}
 			}
 		} catch (SaslAuthenticationException e) {
 			System.out.println("No permission in thread: " + Thread.currentThread().getName());
-			e.printStackTrace();
+		} catch (InterruptedException | InterruptException e) {
+			Thread.interrupted();
+			System.out.println("Now i will proceed to kill myself: " + Thread.currentThread().getName());
 		} catch (Exception e) {
-			System.out.println("Error in consumer thread: " + Thread.currentThread().getName());
+			System.out.println("Error in thread: " + Thread.currentThread().getName());
 			e.printStackTrace();
 		} finally {
-			System.out.println("Killing consumer sesion: " + Thread.currentThread().getName());
-			try {
-				cons.close();
-				pWriter.close();
-			} catch (Exception e) {
-				System.out.println("Error closing streams");
-			}
+			Thread.interrupted();
 		}
+		
+		//KILL CONSUMER SESSION
+		try {
+			System.out.println("Killing consumer sesion: " + Thread.currentThread().getName());
+			cons.close();
+		} catch (Exception e) {}
 		
 		System.gc();
 	}

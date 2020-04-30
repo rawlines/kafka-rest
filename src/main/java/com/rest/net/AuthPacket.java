@@ -1,7 +1,17 @@
 package com.rest.net;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
+/**
+ * 
+ * Class for representating an Authentication packet
+ * 
+ * bytes representation: 0000AUTHuser@@pass
+ * 
+ * @author gonza
+ *
+ */
 public class AuthPacket implements Packet {
 	private String user;
 	private String password;
@@ -22,7 +32,7 @@ public class AuthPacket implements Packet {
 	@Override
 	public byte[] toBytes() {
 		byte[] com = Packet.AUTH_BYTES;
-		byte[] args = (user + ARGUMENT_SEPARATOR + password).getBytes();
+		byte[] args = (user + ARGUMENT_SEPARATOR + password).getBytes(StandardCharsets.ISO_8859_1);
 		int fullLength = Integer.BYTES + com.length + args.length;
 		int packetLength = fullLength - Integer.BYTES;
 		
