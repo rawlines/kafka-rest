@@ -31,7 +31,6 @@ public class ProducerThread implements Runnable {
 		if (p == null || p.getPacketType() != PacketType.PROD)
 			throw new NoProduceCommandException("Nope");
 		
-		System.out.println("PROD ORDER RECEIBED");
 		return (ProducePacket) p;
 	}
 	
@@ -53,6 +52,7 @@ public class ProducerThread implements Runnable {
 				ProducePacket p = waitForOrder();
 				prod.send(new ProducerRecord<String, byte[]>(p.getTopic(), p.getContent()));
 				sendAckToClient();
+				System.out.println("PRODUCED");
 			}
 		} catch (SaslAuthenticationException e) {
 			System.out.println("No permission in thread: " + Thread.currentThread().getName());
@@ -60,15 +60,14 @@ public class ProducerThread implements Runnable {
 			Thread.interrupted();
 			System.out.println("Now i will proceed to kill myself: " + Thread.currentThread().getName());
 		} catch (Exception e) {
-			System.out.println("Error in thread: " + Thread.currentThread().getName());
-			e.printStackTrace();
+			System.out.println("Error in thread: " + Thread.currentThread().getName() + ": " + e.getMessage());
 		} finally {
 			Thread.interrupted();
 		}
 		
 		//KILL PRODUCER SESSION
 		try {
-			System.out.println("Killing producer sesion: " + Thread.currentThread().getName());
+			System.out.println("Killing producer session: " + Thread.currentThread().getName());
 			prod.close();
 		} catch (Exception e) {}
 		

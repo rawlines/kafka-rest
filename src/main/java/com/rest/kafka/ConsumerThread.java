@@ -75,15 +75,14 @@ public class ConsumerThread implements Runnable {
 			Thread.interrupted();
 			System.out.println("Now i will proceed to kill myself: " + Thread.currentThread().getName());
 		} catch (Exception e) {
-			System.out.println("Error in thread: " + Thread.currentThread().getName());
-			e.printStackTrace();
+			System.out.println("Error in thread: " + Thread.currentThread().getName() + ": " + e.getMessage());
 		} finally {
 			Thread.interrupted();
 		}
 		
 		//KILL CONSUMER SESSION
 		try {
-			System.out.println("Killing consumer sesion: " + Thread.currentThread().getName());
+			System.out.println("Killing consumer session: " + Thread.currentThread().getName());
 			cons.close();
 		} catch (Exception e) {}
 		

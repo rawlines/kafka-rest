@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.rest.exceptions.ArgumentParseException;
-import com.rest.exceptions.CommandParseException;
+import com.rest.exceptions.PacketParseException;
 
 public class PacketReader extends DataInputStream {	
 	public PacketReader(InputStream in) {
@@ -21,7 +21,7 @@ public class PacketReader extends DataInputStream {
 	 * @throws CommandParseEsception - if packet command could not be determined
 	 * @throws ArgumentParseException - if arguments are not well formatted
 	 */
-	public Packet readPacket() throws ArgumentParseException, IOException, CommandParseException {
+	public Packet readPacket() throws ArgumentParseException, IOException, PacketParseException {
 		int packetSize = readInt();
 		
 		byte[] buff = readNBytes(packetSize);
