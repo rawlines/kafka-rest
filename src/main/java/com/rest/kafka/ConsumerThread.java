@@ -3,7 +3,7 @@ package com.rest.kafka;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,19 +24,23 @@ import com.rest.utils.KafkaUtil;
 public class ConsumerThread implements Runnable {
 	private PacketWriter pWriter;
 	private Consumer<String, byte[]> cons;
-	private Queue<Packet> queue;
+	private ConcurrentLinkedQueue<Packet> queue;
 	
-	public ConsumerThread(String user, String pass, Queue<Packet> queue, PacketWriter pWriter) throws Exception {
+	public ConsumerThread(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
 		this.cons = KafkaUtil.getConsumer(user, pass);
 		this.queue = queue;
 		this.pWriter = pWriter;
 	}
 	
 	private void waitForAcknowledge() throws NoAcnowledgeException, InterruptedException {
-		synchronized(queue) {
-			queue.wait();
-		}
 		Packet p = queue.poll();
+		
+		if (p == null) {
+			synchronized(queue) {
+				queue.wait();
+				p = queue.poll();
+			}
+		}
 		
 		if (p == null || p.getPacketType() != PacketType.ACKN || ((AcknPacket)p).getCommand() != PacketType.CONS)
 			throw new NoAcnowledgeException("Nope");

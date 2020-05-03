@@ -1,7 +1,7 @@
 package com.rest.kafka;
 
 import java.io.IOException;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -19,14 +19,17 @@ import com.rest.utils.KafkaUtil;
 public class ProducerThread implements Runnable {
 	private PacketWriter pWriter;
 	private Producer<String, byte[]> prod;
-	private Queue<Packet> queue;
+	private ConcurrentLinkedQueue<Packet> queue;
 	
 	private ProducePacket waitForOrder() throws InterruptedException, NoProduceCommandException {
-		synchronized(queue) {
-			queue.wait();
-		}
-		
 		Packet p = queue.poll();
+		
+		if (p == null) {
+			synchronized(queue) {
+				queue.wait();
+				p = queue.poll();
+			}
+		}
 		
 		if (p == null || p.getPacketType() != PacketType.PROD)
 			throw new NoProduceCommandException("Nope");
@@ -34,7 +37,7 @@ public class ProducerThread implements Runnable {
 		return (ProducePacket) p;
 	}
 	
-	public ProducerThread(String user, String pass, Queue<Packet> queue, PacketWriter pWriter) throws Exception {
+	public ProducerThread(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
 		this.prod = KafkaUtil.getProducer(user, pass);
 		this.queue = queue;
 		this.pWriter = pWriter;

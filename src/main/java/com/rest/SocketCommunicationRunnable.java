@@ -2,8 +2,6 @@ package com.rest;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.rest.exceptions.ArgumentParseException;
@@ -27,8 +25,8 @@ public class SocketCommunicationRunnable implements Runnable {
 	private PacketReader pReader;
 	private PacketWriter pWriter;
 	
-	private final Queue<Packet> consumerQueue = new LinkedList<>();
-	private final Queue<Packet> producerQueue = new LinkedList<>();
+	private final ConcurrentLinkedQueue<Packet> consumerQueue = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<Packet> producerQueue = new ConcurrentLinkedQueue<>();
 	private final ConcurrentLinkedQueue<KeepAlivePacket> keepaliveQueue = new ConcurrentLinkedQueue<>();
 	
 	private Thread consumer;
