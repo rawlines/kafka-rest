@@ -46,7 +46,7 @@ public interface Packet {
 		return b;
 	}
 	
-	static PacketType getTypeFromBytes(byte[] b) {
+	static PacketType getTypeFromBytes(byte[] b) throws PacketParseException {
 		if (Arrays.equals(b, KEEP_BYTES)) {
 			
 			return PacketType.KEEP;
@@ -69,7 +69,7 @@ public interface Packet {
 			
 		}
 		
-		throw new CommandParseException("Invalid type");
+		throw new PacketParseException("Invalid type");
 	}
 	
 	static Packet fromBytes(byte[] bytes) throws ArgumentParseException, PacketParseException {
