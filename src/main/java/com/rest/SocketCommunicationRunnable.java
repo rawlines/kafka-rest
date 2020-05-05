@@ -3,13 +3,17 @@ package com.rest;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 
 import com.rest.exceptions.ArgumentParseException;
 import com.rest.exceptions.PacketParseException;
-import com.rest.kafka.ConsumerThread;
-import com.rest.kafka.ProducerThread;
+import com.rest.exceptions.UserExistsException;
+import com.rest.kafka.AdminClass;
+import com.rest.kafka.ConsumerRunnable;
+import com.rest.kafka.ProducerRunnable;
 import com.rest.net.AcknPacket;
 import com.rest.net.AuthPacket;
+import com.rest.net.CreaPacket;
 import com.rest.net.KeepAlivePacket;
 import com.rest.net.Packet;
 import com.rest.net.Packet.PacketType;
@@ -33,7 +37,7 @@ public class SocketCommunicationRunnable implements Runnable {
 	private Thread producer;
 	private Thread keepaliveThread;
 	
-	private AuthPacket auth;
+	private AuthPacket auth = null;
 	private final KeepAlivePacket keepAlive = new KeepAlivePacket();
 	
 	private class KeepAliveThread implements Runnable {
@@ -66,21 +70,39 @@ public class SocketCommunicationRunnable implements Runnable {
 		pWriter = new PacketWriter(socket.getOutputStream());
 	}
 	
-	public void waitForAuth() throws ArgumentParseException, IOException, PacketParseException {
+	public void waitForAuthOrRegister() throws ArgumentParseException, IOException, PacketParseException, InterruptedException, ExecutionException, UserExistsException {
 		System.out.println("Waiting for auth...");
-		auth = (AuthPacket) pReader.readPacket();
-		System.out.println("...Auth packet receibed: user: " + auth.getUser());
+		Packet p = pReader.readPacket();
+		switch (p.getPacketType()) {
+			case AUTH:
+				auth = (AuthPacket) p;
+				System.out.println("...Auth packet receibed: user: " + auth.getUser());
+				break;
+				
+			case CREA:
+				AdminClass.createUser((CreaPacket) p);
+				System.out.println("...User created: user: " + auth.getUser());
+				break;
+				
+			default:
+				auth = null;
+				break;
+		}
 	}
 	
 	public void talkWithClient() throws Exception {
-		consumer = new Thread(new ConsumerThread(auth.getUser(), auth.getPassword(), consumerQueue, pWriter), "consumer-" + auth.getUser());
-		producer = new Thread(new ProducerThread(auth.getUser(), auth.getPassword(), producerQueue, pWriter), "producer-" + auth.getUser());
+		if (auth == null)
+			return;
+		
+		consumer = new Thread(new ConsumerRunnable(auth.getUser(), auth.getPassword(), consumerQueue, pWriter), "consumer-" + auth.getUser());
+		producer = new Thread(new ProducerRunnable(auth.getUser(), auth.getPassword(), producerQueue, pWriter), "producer-" + auth.getUser());
 		keepaliveThread = new Thread(new KeepAliveThread(), "keepAlive-" + auth.getUser()); 
 		
 		consumer.start();
 		producer.start();
 		keepaliveThread.start();
 		
+		//Main loop
 		while (consumer.isAlive() && producer.isAlive() && !Thread.interrupted()) {
 			Packet packet = pReader.readPacket();
 			
@@ -130,7 +152,7 @@ public class SocketCommunicationRunnable implements Runnable {
 		System.out.println("...New connection receibed from:" + socket.getInetAddress());
 		try {
 			prepareEnvironment();
-			waitForAuth();
+			waitForAuthOrRegister();
 			talkWithClient();
 		} catch (Exception e) {
 			System.out.println("Error on connection thread: " + Thread.currentThread().getName() + ": " + e.getMessage());

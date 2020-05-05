@@ -21,12 +21,12 @@ import com.rest.net.Packet.PacketType;
 import com.rest.net.PacketWriter;
 import com.rest.utils.KafkaUtil;
 
-public class ConsumerThread implements Runnable {
+public class ConsumerRunnable implements Runnable {
 	private PacketWriter pWriter;
 	private Consumer<String, byte[]> cons;
 	private ConcurrentLinkedQueue<Packet> queue;
 	
-	public ConsumerThread(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
+	public ConsumerRunnable(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
 		this.cons = KafkaUtil.getConsumer(user, pass);
 		this.queue = queue;
 		this.pWriter = pWriter;

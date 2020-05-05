@@ -3,12 +3,13 @@ package com.rest.net;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import com.rest.commonutils.InputChecker;
 import com.rest.exceptions.ArgumentParseException;
 import com.rest.exceptions.PacketParseException;
 
 public interface Packet {
 	enum PacketType {
-		AUTH, PROD, CONS, ACKN, KEEP
+		AUTH, PROD, CONS, ACKN, KEEP, CREA
 	}
 	
 	String ARGUMENT_SEPARATOR = new String(new byte[] {'@', '@'}, StandardCharsets.ISO_8859_1); 
@@ -18,6 +19,7 @@ public interface Packet {
 	byte[] CONS_BYTES = new byte[] {'C', 'O', 'N', 'S'};
 	byte[] ACKN_BYTES = new byte[] {'A', 'C', 'K', 'N'};
 	byte[] KEEP_BYTES = new byte[] {'K', 'E', 'E', 'P'};
+	byte[] CREA_BYTES = new byte[] {'C', 'R', 'E', 'A'};
 	
 	byte[] toBytes();
 	PacketType getPacketType();
@@ -40,6 +42,9 @@ public interface Packet {
 				break;
 			case ACKN:
 				b = ACKN_BYTES;
+				break;
+			case CREA:
+				b = CREA_BYTES;
 				break;
 		}
 		
@@ -66,6 +71,10 @@ public interface Packet {
 		} else if (Arrays.equals(b, ACKN_BYTES)) {
 			
 			return PacketType.ACKN;
+			
+		} else if (Arrays.equals(b, CREA_BYTES)) {
+			
+			return PacketType.CREA;
 			
 		}
 		
@@ -109,6 +118,26 @@ public interface Packet {
 				
 			case ACKN:
 				p = new AcknPacket(getTypeFromBytes(bargs));
+				break;
+				
+			case CREA:
+				String cargs = new String(bargs, StandardCharsets.ISO_8859_1);
+				String[] ctokens = cargs.split(ARGUMENT_SEPARATOR);
+				
+				if (ctokens.length != 2)
+					throw new ArgumentParseException("Invalid arguments");
+				
+				String user = ctokens[0];
+				String pass = ctokens[1];
+				
+				if (!InputChecker.isValidUsername(user))
+					throw new ArgumentParseException("Bad password or user format");
+				
+				if (!InputChecker.isValidPassword(pass))
+					throw new ArgumentParseException("Bad password or user format");
+				
+				
+				p = new CreaPacket(user, pass);
 				break;
 				
 			default:

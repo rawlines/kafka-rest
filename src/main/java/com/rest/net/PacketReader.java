@@ -18,7 +18,7 @@ public class PacketReader extends DataInputStream {
 	 * 
 	 * @return
 	 * @throws IOException - if IO error occurs
-	 * @throws CommandParseEsception - if packet command could not be determined
+	 * @throws PacketParseEsception - if packet type could not be determined
 	 * @throws ArgumentParseException - if arguments are not well formatted
 	 */
 	public Packet readPacket() throws ArgumentParseException, IOException, PacketParseException {

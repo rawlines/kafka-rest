@@ -16,7 +16,7 @@ import com.rest.net.ProducePacket;
 import com.rest.net.PacketWriter;
 import com.rest.utils.KafkaUtil;
 
-public class ProducerThread implements Runnable {
+public class ProducerRunnable implements Runnable {
 	private PacketWriter pWriter;
 	private Producer<String, byte[]> prod;
 	private ConcurrentLinkedQueue<Packet> queue;
@@ -37,7 +37,7 @@ public class ProducerThread implements Runnable {
 		return (ProducePacket) p;
 	}
 	
-	public ProducerThread(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
+	public ProducerRunnable(String user, String pass, ConcurrentLinkedQueue<Packet> queue, PacketWriter pWriter) throws Exception {
 		this.prod = KafkaUtil.getProducer(user, pass);
 		this.queue = queue;
 		this.pWriter = pWriter;
