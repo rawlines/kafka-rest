@@ -29,6 +29,13 @@ public class PacketReader extends DataInputStream {
 		return Packet.fromBytes(buff);
 	}
 	
+	/**
+	 * Reads n bytes from stream, this methods blocks until all bytes are readed.
+	 * 
+	 * @param num
+	 * @return
+	 * @throws IOException
+	 */
 	private byte[] readNBytes(int num) throws IOException {
 		byte[] buff = new byte[num];
 		
