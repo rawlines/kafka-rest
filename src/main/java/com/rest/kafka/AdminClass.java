@@ -39,7 +39,7 @@ public class AdminClass {
 		boolean exists = admin.listTopics().names().get().stream().anyMatch((topicName) -> topicName.equals(packet.getUser()));
 		
 		if (exists)
-			throw new UserExistsException("User " + packet.getUser() + "already exists");
+			throw new UserExistsException("User " + packet.getUser() + " already exists");
 		
 		//------------------------number of nodes
 		short aviableBrokers = (short) admin.describeCluster().nodes().get().size();
