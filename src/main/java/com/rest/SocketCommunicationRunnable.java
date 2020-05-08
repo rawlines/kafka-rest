@@ -14,6 +14,7 @@ import com.rest.kafka.ProducerRunnable;
 import com.rest.net.AcknPacket;
 import com.rest.net.AuthPacket;
 import com.rest.net.CreaPacket;
+import com.rest.net.DenyPacket;
 import com.rest.net.KeepAlivePacket;
 import com.rest.net.Packet;
 import com.rest.net.Packet.PacketType;
@@ -92,6 +93,8 @@ public class SocketCommunicationRunnable implements Runnable {
 					isCreatingNewUser = false;
 					System.out.println("...User created");
 				} catch (Exception e) {
+					//User creation is denied
+					pWriter.sendPacket(new DenyPacket(PacketType.CREA));
 					e.printStackTrace();
 				}
 				break;
