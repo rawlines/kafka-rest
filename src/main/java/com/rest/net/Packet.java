@@ -9,7 +9,7 @@ import com.rest.exceptions.PacketParseException;
 
 public interface Packet {
 	enum PacketType {
-		AUTH, PROD, CONS, ACKN, KEEP, CREA
+		AUTH, PROD, CONS, ACKN, KEEP, CREA, DENY
 	}
 	
 	String ARGUMENT_SEPARATOR = new String(new byte[] {'@', '@'}, StandardCharsets.ISO_8859_1); 
@@ -20,6 +20,7 @@ public interface Packet {
 	byte[] ACKN_BYTES = new byte[] {'A', 'C', 'K', 'N'};
 	byte[] KEEP_BYTES = new byte[] {'K', 'E', 'E', 'P'};
 	byte[] CREA_BYTES = new byte[] {'C', 'R', 'E', 'A'};
+	byte[] DENY_BYTES = new byte[] {'D', 'E', 'N', 'Y'};
 	
 	byte[] toBytes();
 	PacketType getPacketType();
@@ -45,6 +46,9 @@ public interface Packet {
 				break;
 			case CREA:
 				b = CREA_BYTES;
+				break;
+			case DENY:
+				b = DENY_BYTES;
 				break;
 		}
 		
@@ -75,6 +79,10 @@ public interface Packet {
 		} else if (Arrays.equals(b, CREA_BYTES)) {
 			
 			return PacketType.CREA;
+			
+		} else if (Arrays.equals(b, DENY_BYTES)) {
+			
+			return PacketType.DENY;
 			
 		}
 		
@@ -138,6 +146,10 @@ public interface Packet {
 				
 				
 				p = new CreaPacket(user, pass);
+				break;
+				
+			case DENY:
+				p = new DenyPacket(getTypeFromBytes(bargs));
 				break;
 				
 			default:
