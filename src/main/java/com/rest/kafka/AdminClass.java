@@ -16,11 +16,13 @@ import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 
 import com.rest.exceptions.UserExistsException;
-import com.rest.net.AuthPacket;
+import com.rest.net.AcknPacket;
 import com.rest.net.CreaPacket;
+import com.rest.net.Packet.PacketType;
 import com.rest.utils.KafkaUtil;
 
 public class AdminClass {
+	private static final String ZOOKEEPER_ADDR = "kafkaproject.ddns.net:2181";
 	
 	/**
 	 * Creates a new user, a topic with his username and adds the correspondin ACLs for this user into the topic
@@ -31,7 +33,7 @@ public class AdminClass {
 	 * @throws IOException
 	 * @throws UserExistsException - if user already exists
 	 */
-	public static AuthPacket createUser(CreaPacket packet) throws InterruptedException, ExecutionException, IOException, UserExistsException {
+	public static AcknPacket createUser(CreaPacket packet) throws InterruptedException, ExecutionException, IOException, UserExistsException {
 		Admin admin = KafkaUtil.getAdmin();
 		
 		boolean exists = admin.listTopics().names().get().stream().anyMatch((topicName) -> topicName.equals(packet.getUser()));
@@ -43,7 +45,8 @@ public class AdminClass {
 		short aviableBrokers = (short) admin.describeCluster().nodes().get().size();
 		
 		//CREATE USER
-		ProcessBuilder pb = new ProcessBuilder("./create-user.sh", KafkaUtil.BOOTSTRAP_SERVER, packet.getUser(), packet.getPassword());
+		System.out.println("creating user: " + packet.getUser() + " " + packet.getPassword());
+		ProcessBuilder pb = new ProcessBuilder("./create-user.sh", ZOOKEEPER_ADDR, packet.getUser(), packet.getPassword());
 		pb.environment().put("PATH", "/home/gonza/Programas/java/jdk-13.0.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
 		
 		pb.redirectErrorStream(true)
@@ -65,13 +68,13 @@ public class AdminClass {
 		ace = new AccessControlEntry("User:" + packet.getUser(), "*", AclOperation.READ, AclPermissionType.ALLOW);
 		acls.add(new AclBinding(rpattern, ace));
 		//write
-		ace = new AccessControlEntry("User:" + packet.getUser(), "*", AclOperation.WRITE, AclPermissionType.ALLOW);
+		ace = new AccessControlEntry("User:*", "*", AclOperation.WRITE, AclPermissionType.ALLOW);
 		acls.add(new AclBinding(rpattern, ace));		
 		admin.createAcls(acls).all().get();
 		
 		System.gc();
 		
-		return new AuthPacket(packet.getUser(), packet.getPassword());
+		return new AcknPacket(PacketType.CREA);
 	}
 	
 	/**

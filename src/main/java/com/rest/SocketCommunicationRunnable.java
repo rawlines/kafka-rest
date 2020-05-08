@@ -40,13 +40,15 @@ public class SocketCommunicationRunnable implements Runnable {
 	private AuthPacket auth = null;
 	private final KeepAlivePacket keepAlive = new KeepAlivePacket();
 	
+	private boolean isCreatingNewUser = false;
+	
 	private class KeepAliveThread implements Runnable {
 		@Override
 		public void run() {
 			try {
 				while (!Thread.interrupted()) {
 					Thread.sleep(KEEP_ALIVE_MILLIS);
-					if (keepaliveQueue.poll() == null)
+					if (keepaliveQueue.poll() == null && !isCreatingNewUser)
 						break;
 					System.out.println("KEEP");
 				}
@@ -68,6 +70,9 @@ public class SocketCommunicationRunnable implements Runnable {
 	public void prepareEnvironment() throws IOException {
 		pReader = new PacketReader(socket.getInputStream());
 		pWriter = new PacketWriter(socket.getOutputStream());
+		
+		keepaliveThread = new Thread(new KeepAliveThread(), "keepAlive");
+		keepaliveThread.start();
 	}
 	
 	public void waitForAuthOrRegister() throws ArgumentParseException, IOException, PacketParseException, InterruptedException, ExecutionException, UserExistsException {
@@ -80,8 +85,15 @@ public class SocketCommunicationRunnable implements Runnable {
 				break;
 				
 			case CREA:
-				AdminClass.createUser((CreaPacket) p);
-				System.out.println("...User created: user: " + auth.getUser());
+				try {
+					isCreatingNewUser = true;
+					AcknPacket ack = AdminClass.createUser((CreaPacket) p);
+					pWriter.sendPacket(ack);
+					isCreatingNewUser = false;
+					System.out.println("...User created");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				break;
 				
 			default:
@@ -96,11 +108,9 @@ public class SocketCommunicationRunnable implements Runnable {
 		
 		consumer = new Thread(new ConsumerRunnable(auth.getUser(), auth.getPassword(), consumerQueue, pWriter), "consumer-" + auth.getUser());
 		producer = new Thread(new ProducerRunnable(auth.getUser(), auth.getPassword(), producerQueue, pWriter), "producer-" + auth.getUser());
-		keepaliveThread = new Thread(new KeepAliveThread(), "keepAlive-" + auth.getUser()); 
 		
 		consumer.start();
 		producer.start();
-		keepaliveThread.start();
 		
 		//Main loop
 		while (consumer.isAlive() && producer.isAlive() && !Thread.interrupted()) {

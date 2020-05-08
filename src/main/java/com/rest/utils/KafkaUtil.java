@@ -19,7 +19,7 @@ import org.apache.kafka.common.config.SslConfigs;
 public abstract class KafkaUtil {
 	private static String JAAS_TEMPLATE = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";";
 	
-	public static String BOOTSTRAP_SERVER = "kafkaproject.ddns.net:9091";
+	private static String BOOTSTRAP_SERVER = "kafkaproject.ddns.net:9091";
 	
 	private static String KEY_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
 	private static String VALUE_DESERIALIZER = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
