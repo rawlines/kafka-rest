@@ -16,6 +16,7 @@ import org.apache.kafka.common.errors.SaslAuthenticationException;
 import com.rest.exceptions.NoAcnowledgeException;
 import com.rest.net.AcknPacket;
 import com.rest.net.ConsumePacket;
+import com.rest.net.DenyPacket;
 import com.rest.net.Packet;
 import com.rest.net.Packet.PacketType;
 import com.rest.net.PacketWriter;
@@ -75,6 +76,13 @@ public class ConsumerRunnable implements Runnable {
 			}
 		} catch (SaslAuthenticationException e) {
 			System.out.println("No permission in thread: " + Thread.currentThread().getName());
+			
+			//Send reject to client
+			try {
+				pWriter.sendPacket(new DenyPacket(PacketType.AUTH));
+			} catch (IOException e1) {}
+			
+			
 		} catch (InterruptedException | InterruptException e) {
 			Thread.interrupted();
 			System.out.println("Now i will proceed to kill myself: " + Thread.currentThread().getName());
