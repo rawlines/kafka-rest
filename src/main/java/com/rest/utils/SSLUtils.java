@@ -30,7 +30,7 @@ public abstract class SSLUtils {
 		KeyManagerFactory knf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		KeyStore keyStore = KeyStore.getInstance("JKS");
 		
-		keyStore.load(new FileInputStream(ResourcesLoader.load(KEYSTORE_RESOURCE_LOCATION)), KEYSTORE_PASSWORD.toCharArray());
+		keyStore.load(new FileInputStream(KEYSTORE_RESOURCE_LOCATION), KEYSTORE_PASSWORD.toCharArray());
 		knf.init(keyStore, KEYSTORE_PASSWORD.toCharArray());
 		
 		return knf.getKeyManagers();
