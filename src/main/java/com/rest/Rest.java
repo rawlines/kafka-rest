@@ -43,6 +43,10 @@ public class Rest {
 	}
 	
 	public static void main(String args[]) {
-		new Rest(8081);
+		try {
+			new Rest(Integer.parseInt(args[0]));
+		} catch (Exception e) {
+			System.out.println("Please, specify a port");
+		}
 	}
 }
