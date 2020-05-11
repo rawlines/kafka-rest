@@ -43,8 +43,14 @@ public class Rest {
 	}
 	
 	public static void main(String args[]) {
+		String port = args[0];
+		SSLUtils.TRUSTSTORE_RESOURE_LOCATION = args[1];
+		SSLUtils.TRUSTSTORE_PASSWORD = args[2];
+		SSLUtils.KEYSTORE_RESOURCE_LOCATION = args[3];
+		SSLUtils.KEYSTORE_PASSWORD = args[4];
+		
 		try {
-			new Rest(Integer.parseInt(args[0]));
+			new Rest(Integer.parseInt(port));
 		} catch (Exception e) {
 			System.out.println("Please, specify a port");
 		}

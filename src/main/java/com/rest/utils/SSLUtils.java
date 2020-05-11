@@ -21,10 +21,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public abstract class SSLUtils {
-	static final String TRUSTSTORE_RESOURE_LOCATION = "keystore/kafkarootCA.jks";
-	static final String TRUSTSTORE_PASSWORD = "123456";
-	static final String KEYSTORE_RESOURCE_LOCATION = "keystore/admin.jks";
-	static final String KEYSTORE_PASSWORD = "123456";
+	public static String TRUSTSTORE_RESOURE_LOCATION = "keystore/kafkarootCA.jks";
+	public static String TRUSTSTORE_PASSWORD = "123456";
+	public static String KEYSTORE_RESOURCE_LOCATION = "keystore/admin.jks";
+	public static String KEYSTORE_PASSWORD = "123456";
 	
 	private static KeyManager[] getKeyManagers() throws NoSuchAlgorithmException, KeyStoreException, CertificateException, FileNotFoundException, IOException, UnrecoverableKeyException {
 		KeyManagerFactory knf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
