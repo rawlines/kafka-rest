@@ -47,10 +47,10 @@ public class AdminClass {
 		//CREATE USER
 		System.out.println("creating user: " + packet.getUser() + " " + packet.getPassword());
 		ProcessBuilder pb = new ProcessBuilder("./create-user.sh", ZOOKEEPER_ADDR, packet.getUser(), packet.getPassword());
-		pb.environment().put("PATH", "/home/gonza/Programas/java/jdk-13.0.2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
+		pb.environment().put("PATH", "/usr/java/jre1.8.0_241/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
 		
 		pb.redirectErrorStream(true)
-				.directory(new File("/home/gonza/Escritorio/Kafka/kafka_2.12-2.4.1"))
+				.directory(new File("."))
 				.start().waitFor();
 		//----------------------------
 		
